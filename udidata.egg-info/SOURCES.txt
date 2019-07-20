@@ -1,0 +1,8 @@
+README.md
+setup.py
+udidata/__init__.py
+udidata/load.py
+udidata.egg-info/PKG-INFO
+udidata.egg-info/SOURCES.txt
+udidata.egg-info/dependency_links.txt
+udidata.egg-info/top_level.txt

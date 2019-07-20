@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: udidata
+Version: 0.0.1
+Summary: Tools for manipulating my dataset
+Home-page: UNKNOWN
+Author: Udi Yosovzon
+License: UNKNOWN
+Description: This is my package for manipulating data stored in csv files
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown

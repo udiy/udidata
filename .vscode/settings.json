@@ -1,0 +1,11 @@
+{
+    "python.pythonPath": "C:\\Users\\udiyo\\Miniconda3\\envs\\udidata\\python.exe",
+    "terminal.integrated.shellArgs.windows": ["/K", "C:\\Users\\udiyo\\Miniconda3\\Scripts\\activate.bat C:\\Users\\udiyo\\Miniconda3 & conda activate udidata"],
+    "code-runner.executorMap": { 
+        "python": "C:\\Users\\udiyo\\Miniconda3\\Scripts\\activate.bat C:\\Users\\udiyo\\Miniconda3 & conda activate udidata & python"
+     }
+}
+
+
+
+    
