@@ -1,13 +1,11 @@
 import os
-from pathlib import Path
-import glob
 import pandas as pd
-from .settings import DATA_DIR, COMPRESSION, EXTENSION
+from .settings import DATA_DIR, COMPRESSION, EXTENSION, COL_NAMES
 
 
 #######################################################################################################################
 
-def day(date, hour_range=(0,23)):
+def day(date, columns=COL_NAMES.values(), hour_range=(0,23), where=None, dropna=False):
     """
     Returns a pandas DataFrame of daily data
 
@@ -17,7 +15,18 @@ def day(date, hour_range=(0,23)):
         Expected date format is yyyy/mm/dd
     
     hour_range : int or tuple of int, default (0,23)
-        Range of hours of the day for querying data
+        Range of hours of the day to return
+
+    columns : list of str, default all columns
+        Columns to return
+
+    where : dict, default None
+        A dictionary of column names and the values to filter by, the dataframe is filtered to accomodate all conditions.
+        Meaning cond1 AND cond2 are to be met not cond1 OR cond2
+
+    dropna : bool, default False
+        If True, drops rows that has at least one NaN value in them
+        It can also take a list or a tuple of column names to drop by
 
     Returns
     -------
@@ -29,7 +38,9 @@ def day(date, hour_range=(0,23)):
     if no_data != []:
         print(f"On {date} no data for the following hours {no_data}")
     if csv_files != []:
-        df = construct_dataframe(csv_files)
+        df = construct_dataframe(csv_files, columns, dropna, where)
+        if df.empty:
+            print("No data matched your critiriea, try changing your filters")
         return df
     else:
         print(f"No data for {date}")
@@ -76,7 +87,7 @@ def get_csv(folder_name, hour_range):
 
 #######################################################################################################################
 
-def construct_dataframe(csv_files):
+def construct_dataframe(csv_files, columns, dropna, where):
     """
     Returns pandas DataFrame
 
@@ -85,12 +96,34 @@ def construct_dataframe(csv_files):
     csv_files : list of str 
         A list with exact path to csv files to be concatanated
 
+    columns : list of str
+        Columns to return
+    
+    dropna : bool or array-like
+        If True, drops rows that has at least one NaN value in them.
+        It can also take a list or a tuple of column names to drop by
+    
+    where : dict, default None
+        A dictionary of column names and the values to filter by, the dataframe is filtered to accomodate all conditions.
+        Meaning cond1 AND cond2 are to be met not cond1 OR cond2
+
     Returns
     -------
     df : pandas DataFrame
     """
 
-    dfs = [pd.read_csv(file, compression=COMPRESSION) for file in csv_files]
+    dfs = [pd.read_csv(file, usecols=columns, compression=COMPRESSION)[columns] for file in csv_files]
+    dfs = [df for df in dfs if isinstance(df, pd.core.frame.DataFrame)]   # make sure all entries in dfs are of type DataFrame before concatanation
     df = pd.concat(dfs, ignore_index=True)
+
+    if dropna is True:
+        df.dropna(inplace=True)
+    elif isinstance(dropna, (list, tuple)):
+        df.dropna(subset=dropna, inplace=True)
+
+    if where is not None:
+        for col in where:
+            llim, ulim = where[col]
+            df = df[df[col].between(llim, ulim)]
 
     return df
