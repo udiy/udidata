@@ -35,10 +35,10 @@ def day(date, columns=COL_NAMES.values(), hour_range=(0,23), where=None, dropna=
 
     folder_name = f"{DATA_DIR}/{date}"
     csv_files, no_data = get_csv(folder_name, hour_range)
-    if no_data != []:
+    if no_data != [] and csv_files != []:    # if no data for only certain hours
         print(f"On {date} no data for the following hours {no_data}")
     if csv_files != []:
-        df = construct_dataframe(csv_files, columns, dropna, where)
+        df = construct_day_df(csv_files, columns, dropna, where)
         if df.empty:
             print("No data matched your critiriea, try changing your filters")
         return df
@@ -46,6 +46,32 @@ def day(date, columns=COL_NAMES.values(), hour_range=(0,23), where=None, dropna=
         print(f"No data for {date}")
         return 
     
+
+#######################################################################################################################
+
+def days(date_range, columns=COL_NAMES.values(), hour_range=(0,23), where=None, dropna=False):
+    """
+    Returns a pandas DataFrame of data between specified dates
+
+    Parameters
+    ----------
+    date_range : array-like of str
+        A tuple in the form of (start_date, end_date). Dates must be in the following format: yyyy/mm/dd
+    """
+
+    start_date = date_range[0]
+    end_date = date_range[-1]
+    str_dates = [str(d.date()).replace("-","/") for d in pd.date_range(start=start_date, end=end_date)]
+
+    # load dataframes from the wanted dates and put them in a list
+    dfs = [day(date, columns, hour_range, where, dropna) for date in str_dates]
+    dfs = [df for df in dfs if isinstance(df, pd.core.frame.DataFrame)]    # make sure all entries in dfs are of type DataFrame before concatanation
+    if dfs != []:
+        df = pd.concat(dfs,ignore_index=True)
+        return df
+    else:
+        print(f"Sorry, no data found for these dates: {start_date} to {end_date}")
+
 
 #######################################################################################################################
 
@@ -87,7 +113,7 @@ def get_csv(folder_name, hour_range):
 
 #######################################################################################################################
 
-def construct_dataframe(csv_files, columns, dropna, where):
+def construct_day_df(csv_files, columns, dropna, where):
     """
     Returns pandas DataFrame
 
