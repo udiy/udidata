@@ -40,7 +40,7 @@ def day(date, columns=COL_NAMES.values(), hour_range=(0,23), where=None, dropna=
     if csv_files != []:
         df = construct_day_df(csv_files, columns, dropna, where)
         if df.empty:
-            print("No data matched your critiriea, try changing your filters")
+            print(f"On {date} no data matched your critiriea, try changing your where/na filters")
         return df
     else:
         print(f"No data for {date}")
