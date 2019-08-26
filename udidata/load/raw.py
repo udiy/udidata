@@ -1,13 +1,13 @@
 import os
 import pandas as pd
-from .settings import DATA_DIR, COMPRESSION, EXTENSION, COL_NAMES
+from ..settings import DATA_DIR, COMPRESSION, EXTENSION, COL_NAMES
 
 
 #######################################################################################################################
 
 def day(date, columns=COL_NAMES.values(), hour_range=(0,23), where=None, dropna=False):
     """
-    Returns a pandas DataFrame of daily data
+    Returns a pandas DataFrame of daily raw data
 
     Parameters
     ----------
