@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
-from . import load
+from . import load, utils
 
 #######################################################################################################################
 
@@ -69,4 +69,31 @@ def convert_agg_dataset(date):
         das[atmos_prop] = da
 
     ds = xr.Dataset(data_vars=das)
+    return ds
+
+#######################################################################################################################
+
+def unified_dataset(date_range):
+    """
+    Create an xarray dataset holding all the data within specified date range.
+    For given date range transform all of its daily agg data into xarray datasets, then unify them into one big dataset.
+    
+    Parameters
+    ----------
+    date_range : array-like of str
+        A tuple in the form of (start_date, end_date). Dates must be in the following format: yyyy/mm/dd
+        
+    Returns
+    -------
+    ds : xarray Dataset
+        A concatanated xarray Dataset holding all the data between specified date range
+    """
+    start_date = date_range[0]
+    end_date = date_range[-1]
+    str_dates = [str(d.date()).replace("-","/") for d in pd.date_range(start=start_date, end=end_date)]
+    str_dates = [date for date in str_dates if utils.data_exists(date)]    # remove dates with no data
+
+    dss = [convert_agg_dataset(date) for date in str_dates]    # create a list of xr.Datasets to concat along date dimension
+    date_idx = pd.Index(str_dates, name="date")    # create an index of dates
+    ds = xr.concat(dss, dim=date_idx)
     return ds
