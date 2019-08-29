@@ -5,39 +5,6 @@ from . import load, utils
 
 #######################################################################################################################
 
-def discretize_latlng(df, deg=2.5, lat_col="lat", lng_col="lng"):
-    """
-    Takes in a DataFrame with latitude and longitude data as a continuous variable and tranfroms it to a discrete variable
-
-    Parameters
-    ----------
-    df : pd.DataFrame 
-        padnas DataFrame with columns for latitude and longitude
-    
-    deg : int or or float, default 2.5
-        Spatial degree interval for for latitude and longitude data
-
-    lat_col : str, default "lat"
-        Name of column with latitude data
-    
-    lng_col : str, default "lng"
-        Name of column with longitude data
-
-    Returns
-    -------
-    df_discrete : pandas Dataframe
-        DataFrame with discrete latitude and longitude values
-    """
-
-    # discretize lat, lng values into categories using cut method from pandas
-    lat_cat = pd.cut(df[lat_col], bins=np.arange(-90,91,deg), labels=np.arange(-90,90,deg)).rename("lat_cat").astype(np.float)
-    lng_cat = pd.cut(df[lng_col], bins=np.arange(-180,181,deg), labels=np.arange(-180,180,deg)).rename("lng_cat").astype(np.float)
-    df_discrete = pd.concat([df.drop([lat_col,lng_col], axis=1), lat_cat, lng_cat], axis=1)
-    
-    return df_discrete
-
-#######################################################################################################################
-
 def convert_agg_dataset(date):
     """ 
     For a given date turn dataframe of aggregated data into xarray dataset
@@ -97,3 +64,70 @@ def unified_dataset(date_range):
     date_idx = pd.Index(str_dates, name="date")    # create an index of dates
     ds = xr.concat(dss, dim=date_idx)
     return ds
+
+#######################################################################################################################
+
+def pivot_dataset(ds, prop="pressure", stat="mean"):
+    """
+    Takes in xarray dataset of aggregated data and return a pandas DataFrame after pivotting. Location as index and date as columns.
+
+    Parameters
+    ----------
+    ds : xarray Dataset
+        A dataset of aggregated data with a specified format
+
+    prop : {'pressure', 'temperature', 'humidity', 'magnetic_tot'}, default 'pressure'
+        Atmospheric property of interest
+        
+    stat : {'count', ' mean', ' median', ' std', ' min', ' max'}, default 'count'
+        A statistic of interest to show on the plot.
+
+    Returns
+    -------
+    df : pandas DataFrame
+        A pivotted dataframe
+    """
+    da = ds.sel(stat=stat)[prop]
+    df = da.to_dataframe(name=stat).drop(["stat"], axis=1)
+    df = df.dropna().reset_index().set_index(["lat","lng"])
+    df = df.pivot(columns="date")
+    return df
+
+#######################################################################################################################
+
+def tidy_df(ds, prop="pressure", stat="count"):
+    """
+    Takes in xarray Dataset and creates a tidy and clean pandas DataFrame for plotting with plotly
+    
+    Parameters
+    ----------
+    ds : xarray Dataset
+        A dataset of aggregated data with a specified format
+
+    prop : str, default 'pressure'
+        Atmospheric property of interest
+        
+    stat : str, default 'count'
+        A statistic of interest to show on the plot. Options: count, mean, median, std, min, max
+    
+    Returns
+    -------
+    df : pandas DataFrame
+        A 'tidy' dataframe suitable for plotting data
+    """
+    if stat.lower()=="total count":
+        stat = "count"
+        da = ds.sel(stat=stat)[prop]
+        da = da.sum(dim="date")
+    else:
+        da = ds.sel(stat=stat)[prop]
+        
+    # transform data to pandas DataFrame so it's easier to plot with plotly. And clean dataframe
+    df = da.to_dataframe(name=stat)
+    df = df.dropna().drop(["stat"], axis=1)
+    df = df[df[stat]>0]
+    if (df[stat].max() - df[stat].min()) > 100:    # if values range is bigger than 2 orders of magnitude then scale column
+        df = df.scale_column(col=stat)
+    df = df.reset_index()
+    
+    return df
