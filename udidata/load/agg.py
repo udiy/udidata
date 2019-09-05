@@ -1,5 +1,6 @@
 from ..settings import DATA_DIR
 import pandas as pd
+import xarray as xr
 
 #######################################################################################################################
 
@@ -33,3 +34,47 @@ def day(date, column=None, latlng=None):
     if latlng:
         df = df.loc[[latlng]]
     return df 
+
+#######################################################################################################################
+
+def year(year):
+    """
+    Returns an xarray Dataset of yearly aggregated data
+    
+    Parameters
+    ----------
+    year : str or int
+        Expected year format is yyyy
+
+    Returns
+    -------
+    df : an aggregated xarray Dataset
+    """
+
+    out_path = f"{DATA_DIR}/{year}/{year}_agg.nc"
+    ds = xr.open_dataset(out_path)
+    return ds
+
+#######################################################################################################################
+
+def years(year_range):
+    """
+    Returns a concatanated xarray Dataset of yearly aggregated data for specified year range.
+    The range is inclusive, for example, for [2014,2016] it will return data for 2014, 2015 and 2016
+    
+    Parameters
+    ----------
+    year_range : array-like of int
+        Expected year format is yyyy
+
+    Returns
+    -------
+    df : an aggregated xarray Dataset
+    """
+
+    start_year = year_range[0]
+    end_year = year_range[-1] + 1
+    load_year = year    # more indicative name, and preventing name collision in the next line
+    dss = [load_year(year) for year in range(start_year,end_year)]    # list of yearly datasets
+    ds = xr.concat(dss, dim="date")
+    return ds

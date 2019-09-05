@@ -1,4 +1,4 @@
-from . import load, transform
+from . import load, utils
 import pandas as pd
 
 #######################################################################################################################
@@ -27,10 +27,10 @@ def daily_spatially_agg(date, deg=2.5):
     
     if isinstance(df, pd.DataFrame):
         # Group data points by lat, lng categories
-        df_discrete = transform.discretize_latlng(df, deg=deg)
+        df = df.discretize_latlng(deg=deg)
 
         # create a groupby object grouped by lat, lng categories
-        grouped = df_discrete.groupby(by=["lat_cat","lng_cat"])
+        grouped = df.groupby(by=["lat_cat","lng_cat"])
         data_count = grouped.size().rename(("count","count"))    # name as a tuple to ease concatanation later on
         data_agg = grouped.agg(["mean","median","std","min","max"])
         df_agg = pd.concat([data_count, data_agg], axis=1)

@@ -1,6 +1,5 @@
-import numpy as np
 import plotly.express as px
-from . import utils, transform
+from . import plot_utils
 
 #######################################################################################################################
 
@@ -24,7 +23,8 @@ def scatter_geo(ds, prop="pressure", stat="count", title=None, cmap="ylorrd"):
     fig : plotly.graph_objs._figure.Figure
         Plotly figure
     """ 
-    df = transform.tidy_df(ds, prop, stat)
+
+    df = plot_utils.scatter_geo(ds, prop, stat)
     
     if stat=="total count":
         stat = "count"
@@ -39,4 +39,34 @@ def scatter_geo(ds, prop="pressure", stat="count", title=None, cmap="ylorrd"):
                          hover_data=[stat], title=title, animation_frame=animation_frame, 
                          projection="natural earth", color_continuous_scale=cmap)
 
+    return fig
+
+#######################################################################################################################
+
+def lines(ds, prop="pressure", stat="mean", title=None):
+    """
+    Plot trend lines across date dimension
+
+    Parameters
+    ----------
+    ds : xarray Dataset
+        A dataset of aggregated data with a specified format
+        
+    prop : str, default 'pressure'
+        Atmospheric property of interest
+
+    stat : str, default 'count'
+        A statistic of interest to show on the plot. Options: count, mean, median, std, min, max
+    
+    Returns
+    -------
+    fig : plotly.graph_objs._figure.Figure
+        Plotly figure
+    """
+
+    df = plot_utils.lines(ds, prop, stat)
+    num_of_colors = len(df["latlng"].drop_duplicates())
+    print(f"Number of colors: {num_of_colors}")
+    fig = px.line(df, x="date", y=stat, color="latlng", title=title)
+    
     return fig
