@@ -66,7 +66,10 @@ def lines(ds, prop="pressure", stat="mean", title=None):
 
     df = plot_utils.lines(ds, prop, stat)
     num_of_colors = len(df["latlng"].drop_duplicates())
-    print(f"Number of colors: {num_of_colors}")
+    print(f"Number of lines: {num_of_colors}")
+    print("""\nIn the legend:
+    - Double click on a specific line to hide all the rest of the lines
+    - Single click on a line to hide it""")
     fig = px.line(df, x="date", y=stat, color="latlng", title=title)
     
     return fig
