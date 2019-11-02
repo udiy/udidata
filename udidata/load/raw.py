@@ -95,8 +95,14 @@ def get_csv(folder_name, hour_range):
     no_data = []    # store hours that have no data files
     csv_files = []
 
-    start_hour = int(hour_range[0])
-    end_hour = int(hour_range[-1])
+    if isinstance(hour_range, int):
+        start_hour = hour_range
+        end_hour = hour_range
+    elif isinstance(hour_range, tuple):
+        start_hour = int(hour_range[0])
+        end_hour = int(hour_range[-1])
+    else:
+        raise TypeError(f"hour_range should be of type int or tuple, but it is of type {type(hour_range)}")
 
     for h in range(start_hour, end_hour + 1):
         # construct the file path for every hour

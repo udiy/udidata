@@ -47,10 +47,8 @@ def count_na(self):
     """
     num_of_values = self.count().rename("values")    # number of values (not NaN) in each column
     num_of_nan = self.isna().sum().rename("nan")    # number of NaN values in each column
-    num_of_rows = self.shape[0]
-    nan_pct = (num_of_nan / num_of_rows).rename("nan_pct")
+    nan_pct = self.isna().mean().rename("nan_pct")
     
-    print(f"Total number of rows: {num_of_rows}")
     return pd.concat([num_of_values, num_of_nan, nan_pct], axis=1)
 
 

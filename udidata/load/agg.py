@@ -16,7 +16,7 @@ def day(date, column=None, latlng=None):
     column : str, default None
         Specify a spcecific column if desried
 
-    laglng : tuple of floats, default None
+    latlng : tuple of floats, default None
         Specify specific latitude and longitude if desried
         Expected format is (lat,lng)
 
