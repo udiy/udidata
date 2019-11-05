@@ -4,42 +4,35 @@ from . import load, utils
 
 #######################################################################################################################
 
-def daily_spatially_agg(date, deg=2.5, vars=['temperature', 'pressure', 'humidity', 'magnetic_tot']): 
+def spatial_agg(df, deg=2.5): 
     """
-    For a given date calculate aggregation (count, mean, median, std, min, max) 
+    For a given df calculate aggregation (count, mean, median, std, min, max) 
     for data variables (temperature, pressure, humidity, magnetic_tot)
     grouped by latitude and longitude category
 
     Parameters
     ----------
-    date : str
-        Expected date format is yyyy/mm/dd
+    df : pandas DataFrame
+        Pandas dataframe with data for the desired sampling range (hourly, daily)
     
     deg : int or or float, default 2.5
         Spatial degree interval for for latitude and longitude data
-
-    vars : list of str
-        List of variables of interest
     
     Returns
     -------
-    df_agg : pandas Dataframe
+    df_agg : pandas DataFrame
         DataFrame with aggregated data for every variable
     """
-    cols = ['lat', 'lng'] + vars
-    df = load.day(date, columns=cols, dropna=vars)
-    
-    if isinstance(df, pd.DataFrame):
-        # Group data points by lat, lng categories
-        df = df.discretize_latlng(deg=deg)
+    # Group data points by lat, lng categories
+    df = df.discretize_latlng(deg=deg)
 
-        # create a groupby object grouped by lat, lng categories
-        grouped = df.groupby(by=["lat_cat","lng_cat"])
-        data_count = grouped.size().rename(("count","count"))    # name as a tuple to ease concatanation later on
-        data_agg = grouped.agg(["mean","median","std","min","max"])
-        df_agg = pd.concat([data_count, data_agg], axis=1)
+    # create a groupby object grouped by lat, lng categories
+    grouped = df.groupby(by=["lat_cat","lng_cat"])
+    data_count = grouped.size().rename(("count","count"))    # name as a tuple to ease concatanation later on
+    data_agg = grouped.agg(["mean","median","std","min","max"])
+    df_agg = pd.concat([data_count, data_agg], axis=1)
 
-        return df_agg
+    return df_agg
 
 #######################################################################################################################
 

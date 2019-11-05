@@ -3,7 +3,7 @@ import pandas as pd
 
 #######################################################################################################################
 
-def reindex_utc(self, time_col="raw_time", drop=False):
+def to_utc(self, time_col="raw_time", reindex=False, drop=False):
     """
     Parameters
     ----------
@@ -12,7 +12,10 @@ def reindex_utc(self, time_col="raw_time", drop=False):
 
     time_col : str, default 'raw_time'
         Column name that holds raw time data
-    
+
+    reindex : bool, default False
+        If True, use UTC time as index
+
     drop : bool, default False
         If true, original raw time column will be dropped for DataFrame
 
@@ -22,18 +25,25 @@ def reindex_utc(self, time_col="raw_time", drop=False):
         Dataframe with time as index
     """
     if time_col in self.columns:
-        self.index = pd.to_datetime(self[time_col], unit="ms")
-        self.index.name = "utc"
+        df = self.copy()
+        utc_col = pd.to_datetime(df[time_col], unit="ms")
+
+        if reindex is True:
+            df.index = utc_col
+            df.index.name = "utc"
+        else:
+            df["utc"] = utc_col
+
     else:
         raise KeyError("There's no time column in your dataframe!")
 
     if drop:
-        self = self.drop([time_col], axis=1)
+        df = df.drop([time_col], axis=1)
 
-    return self
+    return df
 
 
-pd.DataFrame.reindex_utc = reindex_utc
+pd.DataFrame.to_utc = to_utc
 
 #######################################################################################################################
 
@@ -73,9 +83,10 @@ def scale_column(self, col, func=np.log10):
     self : pandas Dataframe
         DataFrame with scaled column
     """
-    s_col = self[col]    # var to hold col as pandas Series
-    self[f"scaled_{col}"] = func(s_col)    # create a new scaled column and inset to self
-    return self
+    df = self.copy()
+    s_col = df[col]    # var to hold col as pandas Series
+    df[f"scaled_{col}"] = func(s_col)    # create a new scaled column and inset to self
+    return df
     
 pd.DataFrame.scale_column = scale_column
 
@@ -107,15 +118,16 @@ def discretize_latlng(self, deg=2.5, lat_col="lat", lng_col="lng", drop=True):
     self : pandas Dataframe
         DataFrame with discrete latitude and longitude values
     """
+    df = self.copy()
 
     # discretize lat, lng values into categories using cut method from pandas
-    self["lat_cat"] = pd.cut(self[lat_col], bins=np.arange(-90,91,deg), labels=np.arange(-90,90,deg))
-    self["lng_cat"] = pd.cut(self[lng_col], bins=np.arange(-180,181,deg), labels=np.arange(-180,180,deg))
+    df["lat_cat"] = pd.cut(df[lat_col], bins=np.arange(-90,91,deg), labels=np.arange(-90,90,deg))
+    df["lng_cat"] = pd.cut(df[lng_col], bins=np.arange(-180,181,deg), labels=np.arange(-180,180,deg))
 
     if drop:
-        self = self.drop([lat_col, lng_col], axis=1)
+        df = df.drop([lat_col, lng_col], axis=1)
     
-    return self
+    return df
 
 pd.DataFrame.discretize_latlng = discretize_latlng
 
@@ -145,17 +157,19 @@ def zip_columns(self, columns, drop=True, new_col=None):
         DataFrame
     """
 
+    df = self.copy()
+
     if isinstance(new_col,str):
         col_name = new_col
     else:
         col_name = "".join(columns)
 
-    self[col_name] = list(zip(*[self[col] for col in columns]))
+    df[col_name] = list(zip(*[df[col] for col in columns]))
 
     if drop:
-        self = self.drop(columns, axis=1)
+        df = df.drop(columns, axis=1)
 
-    return self
+    return df
     
 pd.DataFrame.zip_columns = zip_columns
 
