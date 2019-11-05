@@ -4,7 +4,7 @@ from . import load, utils
 
 #######################################################################################################################
 
-def daily_spatially_agg(date, deg=2.5): 
+def daily_spatially_agg(date, deg=2.5, vars=['temperature', 'pressure', 'humidity', 'magnetic_tot']): 
     """
     For a given date calculate aggregation (count, mean, median, std, min, max) 
     for data variables (temperature, pressure, humidity, magnetic_tot)
@@ -17,14 +17,17 @@ def daily_spatially_agg(date, deg=2.5):
     
     deg : int or or float, default 2.5
         Spatial degree interval for for latitude and longitude data
+
+    vars : list of str
+        List of variables of interest
     
     Returns
     -------
     df_agg : pandas Dataframe
         DataFrame with aggregated data for every variable
     """
-    cols = ['lat', 'lng', 'temperature', 'pressure', 'humidity', 'magnetic_tot']
-    df = load.day(date, columns=cols, dropna=True)
+    cols = ['lat', 'lng'] + vars
+    df = load.day(date, columns=cols, dropna=vars)
     
     if isinstance(df, pd.DataFrame):
         # Group data points by lat, lng categories

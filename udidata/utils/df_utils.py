@@ -1,10 +1,5 @@
-import os
 import numpy as np
 import pandas as pd
-import xarray as xr
-
-from .settings import DATA_DIR
-
 
 #######################################################################################################################
 
@@ -26,9 +21,11 @@ def reindex_utc(self, time_col="raw_time", drop=False):
     self : pandas DataFrame
         Dataframe with time as index
     """
-
-    self.index = pd.to_datetime(self[time_col], unit="ms")
-    self.index.name = "utc"
+    if time_col in self.columns:
+        self.index = pd.to_datetime(self[time_col], unit="ms")
+        self.index.name = "utc"
+    else:
+        raise KeyError("There's no time column in your dataframe!")
 
     if drop:
         self = self.drop([time_col], axis=1)
@@ -53,27 +50,6 @@ def count_na(self):
 
 
 pd.DataFrame.count_na = count_na
-
-#######################################################################################################################
-
-def data_exists(date):
-    """
-    Checks if there is a directory with data files for given date
-
-    Parameters
-    ----------
-    date : str 
-        Expected date format is yyyy/mm/dd
-
-    Returns
-    -------
-    bool
-    """
-    
-    file_path = f"{DATA_DIR}/{date}"
-    if os.path.exists(file_path):
-        return True
-    return False
 
 #######################################################################################################################
 
@@ -183,54 +159,3 @@ def zip_columns(self, columns, drop=True, new_col=None):
     
 pd.DataFrame.zip_columns = zip_columns
 
-#######################################################################################################################
-
-def filter_ds(self, by, gt=1):
-    """
-    Filter dataset by condition that reduce date dimension
-
-    Parameters
-    ----------
-    self : xarray Dataset
-        A dataset of aggregated data with a specified format
-
-    by : {'total count', 'total days'}
-        'total count' - filter dataset by total count (sum) greater than
-        'total days' - filter dataset by total count of not-nan values greater than
-        
-    gt : int, default 0
-        Greater than. Minimal number for condition to be True
-
-    Returns
-    -------
-    ds : xarray Dataset
-        Filtered Dataset
-    """
-    if by.lower()=="total count":
-        da = self.sel(stat="count")["pressure"].sum(dim="date")
-        ds = self.where(da >= gt).dropna(dim="lat", how="all").dropna(dim="lng", how="all")
-    elif by.lower()=="total days":
-        da = self.sel(stat="count")["pressure"].count(dim="date")
-        ds = self.where(da >= gt).dropna(dim="lat", how="all").dropna(dim="lng", how="all")
-    else:
-        print("Your dataset wasn't filtered")
-        return self
-        
-    return ds
-    
-xr.Dataset.filter_ds = filter_ds
-
-#######################################################################################################################
-
-def get_stats(self):
-    """
-    Get basic statistics about data in dataset. Total days and total count.
-    """
-    da1 = self.sel(stat="count")["pressure"].sum(dim="date")
-    s1 = da1.where(da1>0).to_series().rename("total count").dropna()
-    da2 = self.sel(stat="count")["pressure"].count(dim="date")
-    s2 = da2.where(da2>0).to_series().rename("total days").dropna()
-    df_total = pd.concat([s1, s2], axis=1)
-    return df_total.sort_values(by="total days", ascending=False)
-
-xr.Dataset.get_stats = get_stats

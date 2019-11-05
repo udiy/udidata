@@ -5,7 +5,7 @@ from ..settings import DATA_DIR, COMPRESSION, EXTENSION, COL_NAMES
 
 #######################################################################################################################
 
-def day(date, columns=COL_NAMES.values(), hour_range=(0,23), where=None, dropna=False):
+def day(date, columns=COL_NAMES.values(), hour_range=(0,23), where=None, dropna=None):
     """
     Returns a pandas DataFrame of daily raw data
 
@@ -24,9 +24,9 @@ def day(date, columns=COL_NAMES.values(), hour_range=(0,23), where=None, dropna=
         A dictionary of column names and the values to filter by, the dataframe is filtered to accomodate all conditions.
         Meaning cond1 AND cond2 are to be met not cond1 OR cond2
 
-    dropna : bool, default False
-        If True, drops rows that has at least one NaN value in them
-        It can also take a list or a tuple of column names to drop by
+    dropna : str or array-like
+        If string there are two options ‘any’, ‘all’.
+        If array-like, it takes in column names to drop by
 
     Returns
     -------
@@ -49,7 +49,7 @@ def day(date, columns=COL_NAMES.values(), hour_range=(0,23), where=None, dropna=
 
 #######################################################################################################################
 
-def days(date_range, columns=COL_NAMES.values(), hour_range=(0,23), where=None, dropna=False):
+def days(date_range, columns=COL_NAMES.values(), hour_range=(0,23), where=None, dropna=None):
     """
     Returns a pandas DataFrame of data between specified dates
 
@@ -57,6 +57,10 @@ def days(date_range, columns=COL_NAMES.values(), hour_range=(0,23), where=None, 
     ----------
     date_range : array-like of str
         A tuple in the form of (start_date, end_date). Dates must be in the following format: yyyy/mm/dd
+    
+    dropna : str or array-like
+        If string there are two options ‘any’, ‘all’.
+        If array-like, it takes in column names to drop by
     """
 
     start_date = date_range[0]
@@ -131,9 +135,9 @@ def construct_day_df(csv_files, columns, dropna, where):
     columns : list of str
         Columns to return
     
-    dropna : bool or array-like
-        If True, drops rows that has at least one NaN value in them.
-        It can also take a list or a tuple of column names to drop by
+    dropna : str or array-like
+        If string there are two options ‘any’, ‘all’.
+        If array-like, it takes in column names to drop by
     
     where : dict, default None
         A dictionary of column names and the values to filter by, the dataframe is filtered to accomodate all conditions.
@@ -148,8 +152,8 @@ def construct_day_df(csv_files, columns, dropna, where):
     dfs = [df for df in dfs if isinstance(df, pd.core.frame.DataFrame)]   # make sure all entries in dfs are of type DataFrame before concatanation
     df = pd.concat(dfs, ignore_index=True)
 
-    if dropna is True:
-        df.dropna(inplace=True)
+    if isinstance(dropna, str) and dropna in ["any", "all"]:
+        df.dropna(how=dropna, inplace=True)
     elif isinstance(dropna, (list, tuple)):
         df.dropna(subset=dropna, inplace=True)
 
