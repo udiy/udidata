@@ -28,7 +28,7 @@ def to_utc(self, time_col="raw_time", reindex=False, drop=False):
         df = self.copy()
         utc_col = pd.to_datetime(df[time_col], unit="ms")
 
-        if reindex is True:
+        if reindex:
             df.index = utc_col
             df.index.name = "utc"
         else:
