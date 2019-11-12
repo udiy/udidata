@@ -38,9 +38,10 @@ def iterate_days(dates, task):
     # create a list of dates
     start_date = dates[0]
     end_date = dates[-1]
-    date_range = pd.date_range(start_date, end_date, freq="D")
+    date_range = generate_date_list(start_date, end_date)
+    date_range = filter(data_exists, date_range)
     
-    tasks_returns = [task(date.strftime("%Y/%m/%d")) for date in date_range]
+    tasks_returns = [task(date) for date in date_range]
     return tasks_returns
             
 
