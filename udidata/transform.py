@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
-from . import load, utils
+from . import load, utils, dir
 
 #######################################################################################################################
 
@@ -58,7 +58,7 @@ def unified_dataset(date_range):
     start_date = date_range[0]
     end_date = date_range[-1]
     str_dates = [str(d.date()).replace("-","/") for d in pd.date_range(start=start_date, end=end_date)]
-    str_dates = [date for date in str_dates if utils.utils.data_exists(date)]    # remove dates with no data
+    str_dates = [date for date in str_dates if dir.utils.data_exists(date)]    # remove dates with no data
 
     dss = [convert_agg_dataset(date) for date in str_dates]    # create a list of xr.Datasets to concat along date dimension
     date_idx = pd.Index(str_dates, name="date")    # create an index of dates

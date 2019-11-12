@@ -20,19 +20,35 @@ def spatial_agg(df, deg=2.5):
     
     Returns
     -------
-    df_agg : pandas DataFrame
-        DataFrame with aggregated data for every variable
+    data_agg : pandas DataFrame
+        DataFrame with aggregated data for every atmospheric variable
+
+    data_count : pandas Series
+        Series with count of data points for every location
     """
     # Group data points by lat, lng categories
     df = df.discretize_latlng(deg=deg)
 
     # create a groupby object grouped by lat, lng categories
     grouped = df.groupby(by=["lat_cat","lng_cat"])
-    data_count = grouped.size().rename(("count","count"))    # name as a tuple to ease concatanation later on
-    data_agg = grouped.agg(["mean","median","std","min","max"])
-    df_agg = pd.concat([data_count, data_agg], axis=1)
 
-    return df_agg
+    # get count of data points (group size) for each group
+    data_count = grouped.size().rename("count")
+
+    # group by these statistics
+    data_agg = grouped.agg(["mean","median","std","min","max"])
+
+    # rename indices and columns for readability
+    data_agg.columns.names = ["atmos","stat"]
+    data_agg.index.names = ["lat", "lng"]
+    data_count.index.names = ["lat", "lng"]
+
+    # reshape dataframe so it has statistics as index not columns
+    data_agg = data_agg.T.unstack().T
+    
+
+    return data_agg, data_count
+
 
 #######################################################################################################################
 
