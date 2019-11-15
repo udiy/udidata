@@ -2,8 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 from ..settings import DATA_DIR, COMPRESSION, EXTENSION, COL_NAMES
-from ..dir.utils import get_day_folder_path, data_exists, generate_date_list
-from .utils import get_relevant_hours
+from ..dir.utils import get_day_folder_path, data_exists, generate_date_list, get_relevant_hours
+
 
 #######################################################################################################################
 
