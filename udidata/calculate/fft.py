@@ -3,7 +3,7 @@ import numpy as np
 
 #######################################################################################################################
 
-def fourier_transform(signal, sampling_rate):
+def fft(signal, sampling_rate):
     """
     Computes fft for given signal, normalizing results and returns spectrum, and frequency arrays
     

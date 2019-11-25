@@ -107,7 +107,7 @@ def hourly_spatial_agg(date, hour_range=(0,23), cols=["temperature", "pressure",
     count = [data[1] for data in hour_dfs]
     
     # create an index of given hours, for xarray concatanation
-    hour_idx = pd.Index(relevant_hours, name="hour")
+    hour_idx = pd.Index(np.array(relevant_hours, dtype=np.int32), name="hour")
     
     agg_df = pd.concat(agg, keys=hour_idx)
     count_df = pd.concat(count, keys=hour_idx)

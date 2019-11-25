@@ -1,4 +1,4 @@
-from ..settings import DATA_DIR
+from ..dir.utils import DATA_DIR, add_lead_zero
 import pandas as pd
 import xarray as xr
 
@@ -37,23 +37,54 @@ def day(date, column=None, latlng=None):
 
 #######################################################################################################################
 
-def year(year):
+def month(year, month, stats=["mean", "std", "min", "max", "median", "count", "days"]):
+    
+    """
+    Load agg monthly data, if saved as csv.
+
+    Parameters
+    ----------
+    year : int or str
+        Format yyyy
+    month : int or str
+        Format mm
+
+    Returns
+    -------
+    df : an aggregated pandas Dataframe
+    """
+    
+    # construct path for a month data folder
+    month = add_lead_zero(month)
+    path = f"{DATA_DIR}/{year}/{month}/{year}{month}_monthly_pressure_agg.csv.gz"
+
+    # load monthly agg data
+    latlng = ["lat", "lng"]
+    df = pd.read_csv(path, index_col=latlng, usecols=latlng+stats)
+    return df
+
+#######################################################################################################################
+
+def year(year, stats=["mean", "std", "min", "max", "median", "count", "days", "months"]):
     """
     Returns an xarray Dataset of yearly aggregated data
     
     Parameters
     ----------
     year : str or int
-        Expected year format is yyyy
+        Format yyyy
 
     Returns
     -------
     df : an aggregated xarray Dataset
     """
 
-    out_path = f"{DATA_DIR}/{year}/{year}_agg.nc"
-    ds = xr.open_dataset(out_path)
-    return ds
+
+    path = f"{DATA_DIR}/{year}/{year}_anual_pressure_agg.csv.gz"
+
+    latlng = ["lat", "lng"]
+    df = pd.read_csv(path, index_col=latlng, usecols=latlng+stats)
+    return df
 
 #######################################################################################################################
 

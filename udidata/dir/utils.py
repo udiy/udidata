@@ -1,4 +1,5 @@
 import os
+import calendar
 import numpy as np
 import pandas as pd
 from ..settings import DATA_DIR, EXTENSION
@@ -135,7 +136,7 @@ def add_lead_zero(hour):
     ----------
     hour: str or int
     """
-    if hour in range(10):
+    if int(hour) in range(10):
         return f"0{hour}"
     return str(hour)
 
@@ -230,5 +231,22 @@ def get_relevant_hours(date, hour_range):
     relevant_hours = map(add_lead_zero, relevant_hours)
     
     return list(relevant_hours)
+
+#######################################################################################################################
+
+def get_month_range(year, month):
+    
+    """
+    Returns a list of str dates in the format yyyy/mm/dd for wanted month
+    
+    Parameters:
+    ----------
+    year, month: int, str
+    """
+    num_days = calendar.monthrange(int(year), int(month))[1]    # get number of days for the month
+    
+    yyyymm = f"{year}/{month}"
+    
+    return generate_date_list(f"{yyyymm}/01", f"{yyyymm}/{num_days}")
 
 #######################################################################################################################
