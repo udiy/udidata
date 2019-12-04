@@ -1,3 +1,5 @@
+import numpy as np
+import plotly.graph_objects as go
 import plotly.express as px
 from . import plot_utils
 
@@ -73,3 +75,75 @@ def lines(ds, prop="pressure", stat="mean", title=None):
     fig = px.line(df, x="date", y=stat, color="latlng", title=title)
     
     return fig
+
+#######################################################################################################################
+
+def scatter_geo_layout(figure, deg=2.5):
+    
+    """
+    Parameters
+    ----------
+    figure: plotly.graph_objs._figure.Figure
+        Plotly figure geo object i.d. scatter_geo
+        
+    deg: float, default 2.5
+        Degrees for grid spacing
+        
+    Returns
+    -------
+    figure: plotly.graph_objs._figure.Figure
+        Better layout figure
+    """
+    
+    num_traces = len(figure.data)
+    
+    if num_traces > 1:
+        
+        buttons = [dict(label=i+1, 
+                method="update", 
+                args=[dict(visible=np.insert(np.zeros(num_traces-1, dtype=bool), i, 1)), 
+                      dict(title=figure.data[i].name)])
+                   for i in range(num_traces)]
+        
+        figure.update_layout(updatemenus=[go.layout.Updatemenu(active=0, buttons=buttons)], 
+                             title_text=figure.data[0].name)
+        
+        # make only the first trace visible, at first
+        figure.data[0].visible = True
+
+        for i in range(1,num_traces):
+            figure.data[i].visible = False
+
+
+    grid_dict = dict(showgrid = True,
+                     gridcolor = "black",
+                     gridwidth=0.1,
+                     dtick=deg)
+
+    geo_dict = dict(projection_type='natural earth',
+                    showcountries=True, 
+                    countrycolor="white",
+                    showcoastlines=False,
+                    showland=True,
+                    landcolor="#c2c2c2",
+                    showocean=True,
+                    oceancolor="#e6fcfc",
+                    showlakes=True,
+                    lakecolor="#3399FF",
+                    showrivers=True,
+                    showframe=False,
+    #                 bgcolor="#f2eded",
+                    lonaxis=grid_dict,
+                    lataxis=grid_dict)
+
+    colorbar_dict = dict(thicknessmode="fraction",
+                         thickness=0.01,
+                         xpad=0)
+
+
+    figure.update_layout(coloraxis={"colorbar": colorbar_dict, "colorscale": "jet"},
+                      margin={"l":0, "b":0, "t":50},
+                      geo=geo_dict)
+
+
+    figure.show()

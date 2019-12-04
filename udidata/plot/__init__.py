@@ -1,1 +1,1 @@
-from .plot import scatter_geo, lines
+from .plot import scatter_geo_layout
