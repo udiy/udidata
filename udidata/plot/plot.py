@@ -78,23 +78,12 @@ def lines(ds, prop="pressure", stat="mean", title=None):
 
 #######################################################################################################################
 
-def scatter_geo_layout(figure, deg=2.5):
-    
+def add_dropdown(figure):
+
     """
-    Parameters
-    ----------
-    figure: plotly.graph_objs._figure.Figure
-        Plotly figure geo object i.d. scatter_geo
-        
-    deg: float, default 2.5
-        Degrees for grid spacing
-        
-    Returns
-    -------
-    figure: plotly.graph_objs._figure.Figure
-        Better layout figure
+    In case of a figure with multiple traces, adds dropdown menu to the figure.
     """
-    
+
     num_traces = len(figure.data)
     
     if num_traces > 1:
@@ -114,6 +103,26 @@ def scatter_geo_layout(figure, deg=2.5):
         for i in range(1,num_traces):
             figure.data[i].visible = False
 
+#######################################################################################################################
+
+def scatter_geo_layout(figure, deg=2.5):
+    
+    """
+    Defines a template for displaying scatter geo plots
+
+    Parameters
+    ----------
+    figure: plotly.graph_objs._figure.Figure
+        Plotly figure geo object i.d. scatter_geo
+        
+    deg: float, default 2.5
+        Degrees for grid spacing
+        
+    Returns
+    -------
+    figure: plotly.graph_objs._figure.Figure
+        Better layout figure
+    """
 
     grid_dict = dict(showgrid = True,
                      gridcolor = "black",
@@ -145,5 +154,4 @@ def scatter_geo_layout(figure, deg=2.5):
                       margin={"l":0, "b":0, "t":50},
                       geo=geo_dict)
 
-
-    figure.show()
+#######################################################################################################################

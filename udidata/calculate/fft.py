@@ -4,32 +4,26 @@ import numpy as np
 #######################################################################################################################
 
 def fft(signal, sampling_rate):
-    """
-    Computes fft for given signal, normalizing results and returns spectrum, and frequency arrays
     
+    """
     Parameters
     ----------
-    signal : array-like
+    signal: array-like
         An array with discrete signal values
     
-    sampling rate : int
-        Number of data points per unit time. e.g. 365 for a year, means 1 data point for a day.
-    
+    sampling_rate: int
+        Number of samples per one cycle of a unit time.
+
     Returns
     -------
-     : tuple
-        Tuple of arrays for spectrum data and frequency data
+    S, freq: tuple
+        Tuple of two arrays one for intensity (PSD), one for frequency domain
     """
-    n = signal.size
-    Ts = 1/sampling_rate
-
-    spectrum = np.fft.fft(signal)/n
-    freq = np.fft.fftfreq(n=n, d=Ts)
+    Ts = 1/sampling_rate    # sampling spacing - inverse of sampling rate
+    N = len(signal)    # number of sampled points
     
-    # slice the first half to display one sided band
-    spectrum = np.abs(spectrum)
-    i = freq > 0
-    spectrum = spectrum[i]
-    freq = freq[i]
+    S = np.fft.rfft(signal)
+    S = np.abs(S)/N    # normalize frequency
+    freq = np.fft.rfftfreq(N, Ts)    # frequecny domain
     
-    return spectrum, freq
+    return S[1:], freq[1:]

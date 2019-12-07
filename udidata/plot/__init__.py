@@ -1,1 +1,1 @@
-from .plot import scatter_geo_layout
+from .plot import scatter_geo_layout, add_dropdown
