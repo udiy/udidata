@@ -78,17 +78,29 @@ def lines(ds, prop="pressure", stat="mean", title=None):
 
 #######################################################################################################################
 
-def add_dropdown(figure):
+def add_dropdown(figure, labels=None):
 
     """
     In case of a figure with multiple traces, adds dropdown menu to the figure.
+
+    Parametes
+    ---------
+    labels: array-like
+        List of str, labels for the drop down, if not provided, labels will be
+        index numbers
     """
 
     num_traces = len(figure.data)
     
     if num_traces > 1:
+
+        if labels:
+            if len(labels) != num_traces:
+                raise ValueError("labels must have a length according to number of traces")
+        else:
+            labels = range(1, num_traces+1)
         
-        buttons = [dict(label=i+1, 
+        buttons = [dict(label=labels[i], 
                 method="update", 
                 args=[dict(visible=np.insert(np.zeros(num_traces-1, dtype=bool), i, 1)), 
                       dict(title=figure.data[i].name)])
@@ -105,7 +117,7 @@ def add_dropdown(figure):
 
 #######################################################################################################################
 
-def scatter_geo_layout(figure, deg=2.5):
+def scatter_geo_layout(figure, deg=2.5, colorscale="jet"):
     
     """
     Defines a template for displaying scatter geo plots
@@ -117,6 +129,9 @@ def scatter_geo_layout(figure, deg=2.5):
         
     deg: float, default 2.5
         Degrees for grid spacing
+
+    colorscale: str, default "jet"
+        One of plotly options for colorscale.
         
     Returns
     -------
@@ -150,7 +165,7 @@ def scatter_geo_layout(figure, deg=2.5):
                          xpad=0)
 
 
-    figure.update_layout(coloraxis={"colorbar": colorbar_dict, "colorscale": "jet"},
+    figure.update_layout(coloraxis={"colorbar": colorbar_dict, "colorscale": colorscale},
                       margin={"l":0, "b":0, "t":50},
                       geo=geo_dict)
 

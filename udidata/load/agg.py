@@ -10,8 +10,9 @@ def day(date):
     Load daily agg data for a specifc date
     """
     path_start = f"{get_day_folder_path(date)}{date.replace('/','')}_"    
-    df = pd.read_csv(f"{path_start}daily_agg.csv.gz", index_col=["lat", "lng", "stat"])
-    return df
+    df_agg = pd.read_csv(f"{path_start}daily_agg.csv.gz", index_col=["lat", "lng", "stat"])
+    df_count = pd.read_csv(f"{path_start}daily_count.csv.gz", index_col=["lat", "lng"])
+    return df_agg, df_count
 
 #######################################################################################################################
 
@@ -56,7 +57,7 @@ def month(year, month, stats=["mean", "std", "min", "max", "median", "count", "d
 
 def year(year, stats=["mean", "std", "min", "max", "median", "count", "days", "months"]):
     """
-    Returns an xarray Dataset of yearly aggregated data
+    Returns dataframe of yearly agg data
     
     Parameters
     ----------
