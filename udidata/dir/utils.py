@@ -80,23 +80,45 @@ def generate_date_list(start_date, end_date):
 
 #######################################################################################################################
 
-def data_exists(date):
+def data_exists(date, hour=None):
     """
-    Checks if there is a directory with daily data files for given date
+    Checks if there is a directory with daily data files for given date and hour(s)
 
     Parameters
     ----------
-    date : str 
+    date: str 
         Expected date format is yyyy/mm/dd
+
+    hour: int or array-like, default None
+        Specific hour(s) to check, has to be in the range of 0-23
 
     Returns
     -------
-    bool
+    : bool, or array of bools
+        If all hours exist returns True.
+        If some of them do not exist returns a bool array.
     """
     
-    file_path = get_day_folder_path(date)
-    if os.path.exists(file_path):
-        return True
+    if hour is None:
+        
+        file_path = get_day_folder_path(date)
+        if os.path.exists(file_path):
+            return True
+
+    else:
+        
+        # get hours with data for relevant date
+        data_hours = get_hours_with_data(date)
+
+        # bool array - for every hour True data if data exists, otherwise False
+        mask_hours = np.isin(hour, data_hours)
+
+        # if all requested hours exist return True, if only some of them return an array
+        if mask_hours.all():
+           return True 
+        else:
+            return mask_hours
+
     return False
 
 
@@ -206,7 +228,7 @@ def generate_hour_list(hour_range):
 
 #######################################################################################################################
 
-def get_relevant_hours(date, hour_range):
+def get_relevant_hours(date, hour_range, return_type="str"):
 
     """
     Parameters
@@ -216,6 +238,9 @@ def get_relevant_hours(date, hour_range):
     
     hour_range: int or tuple of int, default (0,23)
         Range of desired hours of the day to return
+
+    return_type: "str" or "int"
+        Determines the type of the elements in the returned list
     """
 
     avail_hours = get_hours_with_data(date)    # get a list of available hours for that day
@@ -227,10 +252,12 @@ def get_relevant_hours(date, hour_range):
     if no_data_hours.size > 0:
         print(f"On the {date}, no data for the following hours: {list(no_data_hours)}")
 
-    # add leading zero to conform to the format
-    relevant_hours = map(add_lead_zero, relevant_hours)
+    if return_type == "str":
+        # add leading zero to conform to the format
+        relevant_hours = map(add_lead_zero, relevant_hours)
     
     return list(relevant_hours)
+
 
 #######################################################################################################################
 
@@ -248,5 +275,6 @@ def get_month_range(year, month):
     yyyymm = f"{year}/{month}"
     
     return generate_date_list(f"{yyyymm}/01", f"{yyyymm}/{num_days}")
+
 
 #######################################################################################################################

@@ -52,9 +52,9 @@ def count_na(self):
     """ 
     Count nan values in self on every column
     """
-    num_of_values = self.count().rename("values")    # number of values (not NaN) in each column
-    num_of_nan = self.isna().sum().rename("nan")    # number of NaN values in each column
-    nan_pct = self.isna().mean().rename("nan_pct")
+    num_of_values = self.count().rename("count")    # number of values (not NaN) in each column
+    num_of_nan = self.isna().sum().rename("na_count")    # number of NaN values in each column
+    nan_pct = self.isna().mean().rename("na_pct")
     
     return pd.concat([num_of_values, num_of_nan, nan_pct], axis=1)
 

@@ -8,11 +8,15 @@ def day(date):
     
     """
     Load daily agg data for a specifc date
+
+    Returns
+    -------
+    agg: pd.DataFrame
     """
     path_start = f"{get_day_folder_path(date)}{date.replace('/','')}_"    
-    df_agg = pd.read_csv(f"{path_start}daily_agg.csv.gz", index_col=["lat", "lng", "stat"])
-    df_count = pd.read_csv(f"{path_start}daily_count.csv.gz", index_col=["lat", "lng"])
-    return df_agg, df_count
+    agg = pd.read_csv(f"{path_start}daily_agg.csv.gz", index_col=["lat", "lng", "stat"])
+    
+    return agg
 
 #######################################################################################################################
 
