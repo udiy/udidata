@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from .. import load
-from ..dir.utils import get_hours_with_data, data_exists, generate_date_list, get_relevant_hours
+from ..dir.utils import get_hours_with_data, data_exists, generate_date_list, get_relevant_hours, get_day_folder_path, get_month_range
 from ..utils.df_utils import count_na
 
 #######################################################################################################################
@@ -116,3 +116,108 @@ def hourly_spatial_agg(date, hour_range=(0,23), cols=["temperature", "pressure",
     agg = pd.concat(hour_dfs, keys=hour_idx)
     
     return agg
+
+
+#######################################################################################################################
+
+def monthly_spatial_agg(year, month):
+    
+    """
+    """
+    dates = get_month_range(year, month)
+    
+    aggs = []
+
+
+    # load daily agg data for each day, store in lists
+    for date in dates:
+
+        # load agg data and append to aggs list
+        path_start = f"{get_day_folder_path(date)}{date.replace('/','')}_"
+
+        agg = pd.read_csv(f"{path_start}daily_agg.csv.gz", index_col=["lat", "lng", "stat"])
+
+        aggs.append(agg)
+
+
+    # concat the list into one unified dataframe for the entire month
+    agg = pd.concat(aggs, axis=1, keys=dates)
+    agg.columns.names = ["date", "atmos"]
+
+    
+    # extract mean and count data
+    mean = agg.xs("mean", level="stat")
+    count = agg.xs("count", level="stat")
+
+
+    # perform aggregations
+    total_count = count.sum(axis=1, level="atmos")    # number of data points in the whole month
+    wa = (mean * count).sum(axis=1, level="atmos") / total_count    # weighted average
+    total_days = mean.count(axis=1, level="atmos")
+    std_ = mean.std(axis=1, level="atmos")
+    min_ = mean.min(axis=1, level="atmos")
+    max_ = mean.max(axis=1, level="atmos")
+    med_ = mean.median(axis=1, level="atmos")
+
+
+    # concat all stats into one data frame and store it
+    monthly_agg = pd.concat([wa, std_, min_, max_, med_, total_count, total_days], 
+                                    axis=1, 
+                                    keys=["mean", "std", "min", "max", "median", "count", "days"], 
+                                    names=["stat"])
+
+
+    # reshape
+    monthly_agg = monthly_agg.swaplevel(axis=1).T.unstack().T
+
+    return monthly_agg
+
+
+#######################################################################################################################
+
+def yearly_spatial_agg(year):
+    
+    """
+    """
+    
+    # iterate over 12 months of the year and load monthly agg data
+    aggs = [load.agg.month(year, month) for month in range(1,13)]
+    
+    # concat all into one dataframe
+    agg = pd.concat(aggs, axis=1, keys=range(1,13), names=["month"])
+
+    # extract mean, count and days data
+    mean = agg.xs("mean", level="stat")
+    count = agg.xs("count", level="stat")
+    days = agg.xs("days", level="stat")
+
+    # perform aggregations
+    total_count = count.sum(axis=1, level="atmos")    # number of data points in the whole month
+    wa = (mean * count).sum(axis=1, level="atmos") / total_count    # weighted average
+    total_days = days.sum(axis=1, level="atmos")
+    std_ = mean.std(axis=1, level="atmos")
+    min_ = mean.min(axis=1, level="atmos")
+    max_ = mean.max(axis=1, level="atmos")
+    med_ = mean.median(axis=1, level="atmos")
+
+    # concat all stats into one data frame and store it
+    yearly_agg = pd.concat([wa, std_, min_, max_, med_, total_count, total_days], 
+                                    axis=1, 
+                                    keys=["mean", "std", "min", "max", "median", "count", "days"], 
+                                    names=["stat"])
+
+
+    # reshape
+    yearly_agg = yearly_agg.swaplevel(axis=1).T.unstack().T
+
+
+    return yearly_agg
+
+    
+    
+    # # concat all stats into one data frame and store it
+    # anual_pressure_stats = pd.concat([wa, std, min_, max_, med, total_count, total_days, total_months], 
+    #                               axis=1, 
+    #                               keys=["mean", "std", "min", "max", "median", "count", "days", "months"])
+    
+    # return anual_pressure_stats

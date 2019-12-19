@@ -31,31 +31,36 @@ def hourly(date):
 
 #######################################################################################################################
 
-def month(year, month, stats=["mean", "std", "min", "max", "median", "count", "days"]):
+def month(year, month, atmos=["pressure", "temperature", "humidity", "magnetic_tot"]):
     
     """
     Load agg monthly data, if saved as csv.
 
     Parameters
     ----------
-    year : int or str
+    year: int or str
         Format yyyy
-    month : int or str
+    
+    month: int or str
         Format mm
+
+    atmos: array-like, default ["pressure", "temperature", "humidity", "magnetic_tot"]
+        All atmospheric propeties wished to retrieve
 
     Returns
     -------
-    df : an aggregated pandas Dataframe
+    agg : an aggregated pandas Dataframe
     """
     
     # construct path for a month data folder
     month = add_lead_zero(month)
-    path = f"{DATA_DIR}/{year}/{month}/{year}{month}_monthly_pressure_agg.csv.gz"
+    path = f"{DATA_DIR}/{year}/{month}/{year}{month}_monthly_agg.csv.gz"
 
     # load monthly agg data
-    latlng = ["lat", "lng"]
-    df = pd.read_csv(path, index_col=latlng, usecols=latlng+stats)
-    return df
+    idx = ["lat", "lng", "stat"]
+    agg = pd.read_csv(path, index_col=idx, usecols=idx+atmos)
+    agg.columns.names = ["atmos"]
+    return agg
 
 #######################################################################################################################
 
