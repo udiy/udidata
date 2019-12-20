@@ -4,37 +4,72 @@ import xarray as xr
 
 #######################################################################################################################
 
-def day(date):
-    
+atmos = ["pressure", "temperature", "humidity", "magnetic_tot"]
+
+
+def load_agg(path, atmos=atmos):
     """
-    Load daily agg data for a specifc date
+    Loads an aggregated dataframe (specific format) from path
+    
+    Parameters
+    ----------
+    path: str
+        Path to dataframe to be loaded
+
+    atmos: array-like, default ["pressure", "temperature", "humidity", "magnetic_tot"]
+        All atmospheric propeties wished to retrieve
 
     Returns
     -------
-    agg: pd.DataFrame
+    agg: pandas DataFrame
     """
-    path_start = f"{get_day_folder_path(date)}{date.replace('/','')}_"    
-    agg = pd.read_csv(f"{path_start}daily_agg.csv.gz", index_col=["lat", "lng", "stat"])
+
+    idx = ["lat", "lng", "stat"]
+    agg = pd.read_csv(path, index_col=idx, usecols=idx+atmos)
+    agg.columns.names = ["atmos"]
     
     return agg
 
-#######################################################################################################################
-
-def hourly(date):
-    
-    """
-    Load hourly agg data for a specifc date
-    """
-    path_start = f"{get_day_folder_path(date)}{date.replace('/','')}_"    
-    df = pd.read_csv(f"{path_start}hourly_agg.csv.gz", index_col=["hour", "lat", "lng", "stat"])
-    return df
 
 #######################################################################################################################
 
-def month(year, month, atmos=["pressure", "temperature", "humidity", "magnetic_tot"]):
+def day(date, atmos=atmos):
     
     """
-    Load agg monthly data, if saved as csv.
+    Returns a dataframe of daily aggregated data
+
+    Parameters
+    -------
+    date: str
+        Format yyyy/mm/dd
+    """
+    path = f"{get_day_folder_path(date)}{date.replace('/','')}_daily_agg.csv.gz"
+    
+    return load_agg(path, atmos)
+
+
+#######################################################################################################################
+
+def hourly(date, atmos=atmos):
+    
+    """
+    Returns a dataframe of hourly aggregated data for a specific date
+
+    Parameters
+    -------
+    date: str
+        Format yyyy/mm/dd
+    """
+    path = f"{get_day_folder_path(date)}{date.replace('/','')}_hourly_agg.csv.gz"
+    return load_agg(path, atmos)
+
+
+#######################################################################################################################
+
+def month(year, month, atmos=atmos):
+    
+    """
+    Returns a dataframe of monthly aggregated data
 
     Parameters
     ----------
@@ -43,47 +78,30 @@ def month(year, month, atmos=["pressure", "temperature", "humidity", "magnetic_t
     
     month: int or str
         Format mm
-
-    atmos: array-like, default ["pressure", "temperature", "humidity", "magnetic_tot"]
-        All atmospheric propeties wished to retrieve
-
-    Returns
-    -------
-    agg : an aggregated pandas Dataframe
     """
     
     # construct path for a month data folder
     month = add_lead_zero(month)
     path = f"{DATA_DIR}/{year}/{month}/{year}{month}_monthly_agg.csv.gz"
 
-    # load monthly agg data
-    idx = ["lat", "lng", "stat"]
-    agg = pd.read_csv(path, index_col=idx, usecols=idx+atmos)
-    agg.columns.names = ["atmos"]
-    return agg
+    return load_agg(path, atmos)
+    
 
 #######################################################################################################################
 
-def year(year, stats=["mean", "std", "min", "max", "median", "count", "days", "months"]):
+def year(year, atmos=atmos):
     """
-    Returns dataframe of yearly agg data
+    Returns a dataframe of yearly aggregated data
     
     Parameters
     ----------
     year : str or int
         Format yyyy
-
-    Returns
-    -------
-    df : an aggregated xarray Dataset
     """
 
+    path = f"{DATA_DIR}/{year}/{year}_yearly_agg.csv.gz"
+    return load_agg(path, atmos)
 
-    path = f"{DATA_DIR}/{year}/{year}_anual_pressure_agg.csv.gz"
-
-    latlng = ["lat", "lng"]
-    df = pd.read_csv(path, index_col=latlng, usecols=latlng+stats)
-    return df
 
 #######################################################################################################################
 
