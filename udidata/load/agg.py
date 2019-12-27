@@ -4,10 +4,11 @@ import xarray as xr
 
 #######################################################################################################################
 
+# colum names
 atmos = ["pressure", "temperature", "humidity", "magnetic_tot"]
+idx = ["lat", "lng", "stat"]
 
-
-def load_agg(path, atmos=atmos):
+def load_agg(path, atmos=atmos, idx=idx):
     """
     Loads an aggregated dataframe (specific format) from path
     
@@ -24,7 +25,6 @@ def load_agg(path, atmos=atmos):
     agg: pandas DataFrame
     """
 
-    idx = ["lat", "lng", "stat"]
     agg = pd.read_csv(path, index_col=idx, usecols=idx+atmos)
     agg.columns.names = ["atmos"]
     
@@ -61,7 +61,7 @@ def hourly(date, atmos=atmos):
         Format yyyy/mm/dd
     """
     path = f"{get_day_folder_path(date)}{date.replace('/','')}_hourly_agg.csv.gz"
-    return load_agg(path, atmos)
+    return load_agg(path, atmos, idx=["hour"]+idx)
 
 
 #######################################################################################################################

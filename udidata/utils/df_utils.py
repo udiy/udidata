@@ -1,6 +1,24 @@
 import numpy as np
 import pandas as pd
 
+
+#######################################################################################################################
+
+def stringify_tuple(tup, sep=","):
+    
+    """
+    Takes in a tuple and concatante its elements as string seperated by a given char.
+    
+    Parameters
+    ----------
+    tup: tuple
+        Tuple to make string
+        
+    sep: str, default ","
+        Seperator between tuple elements in the concataned string
+    """
+    return sep.join([str(e) for e in tup])
+
 #######################################################################################################################
 
 def to_utc(self, time_col="raw_time", reindex=False, drop=False):
@@ -42,7 +60,6 @@ def to_utc(self, time_col="raw_time", reindex=False, drop=False):
 
     return df
 
-
 pd.DataFrame.to_utc = to_utc
 
 #######################################################################################################################
@@ -57,7 +74,6 @@ def count_na(self):
     nan_pct = self.isna().mean().rename("na_pct")
     
     return pd.concat([num_of_values, num_of_nan, nan_pct], axis=1)
-
 
 pd.DataFrame.count_na = count_na
 
@@ -173,3 +189,25 @@ def zip_columns(self, columns, drop=True, new_col=None):
     
 pd.DataFrame.zip_columns = zip_columns
 
+#######################################################################################################################
+
+def str_index(self, name=None):
+    
+    """
+    Takes in a dataframe with multi index and make its index a string
+
+    Parameters
+    ----------
+    name: str, default None
+        Name for the new index
+    """
+    # create a list of string labels for the new index
+    labels = [stringify_tuple(item) for item in self.index.values]
+    
+    new_idx = pd.Index(labels, name=name)
+    
+    return self.set_index(keys=new_idx)
+
+pd.DataFrame.str_index = str_index
+
+#######################################################################################################################

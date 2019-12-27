@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 
 #######################################################################################################################
@@ -25,5 +26,7 @@ def fft(signal, sampling_rate):
     S = np.fft.rfft(signal)
     S = np.abs(S)/N    # normalize frequency
     freq = np.fft.rfftfreq(N, Ts)    # frequecny domain
+
+    return pd.Series(S, index=pd.Index(freq, name="freq"))
     
-    return S[1:], freq[1:]
+    
