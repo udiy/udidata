@@ -2,7 +2,7 @@ Metadata-Version: 2.1
 Name: udidata
 Version: 0.0.1
 Summary: Tools for manipulating my dataset
-Home-page: UNKNOWN
+Home-page: https://github.com/udiy/udidata
 Author: Udi Yosovzon
 License: UNKNOWN
 Description: This is my package for manipulating data stored in csv files

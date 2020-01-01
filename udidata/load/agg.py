@@ -1,6 +1,5 @@
 from ..dir.utils import DATA_DIR, add_lead_zero, get_day_folder_path
 import pandas as pd
-import xarray as xr
 
 #######################################################################################################################
 
@@ -120,9 +119,4 @@ def years(year_range):
     df : an aggregated xarray Dataset
     """
 
-    start_year = year_range[0]
-    end_year = year_range[-1] + 1
-    load_year = year    # more indicative name, and preventing name collision in the next line
-    dss = [load_year(year) for year in range(start_year,end_year)]    # list of yearly datasets
-    ds = xr.concat(dss, dim="date")
-    return ds
+    pass
