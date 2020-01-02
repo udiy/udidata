@@ -17,7 +17,7 @@ def stringify_tuple(tup, sep=","):
     sep: str, default ","
         Seperator between tuple elements in the concataned string
     """
-    return sep.join([str(e) for e in tup])
+    return str(sep.join([str(e) for e in tup]))
 
 #######################################################################################################################
 
@@ -191,7 +191,7 @@ pd.DataFrame.zip_columns = zip_columns
 
 #######################################################################################################################
 
-def str_index(self, name=None):
+def str_col(self, col=None, name=None):
     
     """
     Takes in a dataframe with multi index and make its index a string
@@ -201,13 +201,18 @@ def str_index(self, name=None):
     name: str, default None
         Name for the new index
     """
-    # create a list of string labels for the new index
-    labels = [stringify_tuple(item) for item in self.index.values]
-    
-    new_idx = pd.Index(labels, name=name)
-    
-    return self.set_index(keys=new_idx)
+    if col is None:
+        # create a list of string labels for the new index
+        labels = [stringify_tuple(item) for item in self.index.values]
+        
+        new_idx = pd.Index(labels, name=name)
+        
+        return self.set_index(keys=new_idx)
+    else:
+        self[col] = self[col].apply(stringify_tuple)
+        return self
+        
 
-pd.DataFrame.str_index = str_index
+pd.DataFrame.str_col = str_col
 
 #######################################################################################################################
