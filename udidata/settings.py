@@ -1,4 +1,4 @@
-DATA_DIR = "C:/Users/udiyo/Projects/c_data2"
+DATA_DIR = "C:/Users/udiyo/OneDrive - mail.tau.ac.il/Research/data"
 EXTENSION = "csv.gz"
 COMPRESSION = "infer"
 COL_NAMES = {

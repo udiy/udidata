@@ -2,7 +2,6 @@ README.md
 setup.py
 udidata/__init__.py
 udidata/settings.py
-udidata/transform.py
 udidata.egg-info/PKG-INFO
 udidata.egg-info/SOURCES.txt
 udidata.egg-info/dependency_links.txt
