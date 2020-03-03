@@ -117,16 +117,13 @@ def add_dropdown(figure, labels=None):
 
 #######################################################################################################################
 
-def scatter_geo_layout(figure, deg=2.5, colorscale="jet"):
+def scatter_geo_layout(deg=2.5, colorscale="jet"):
     
     """
     Defines a template for displaying scatter geo plots
 
     Parameters
     ----------
-    figure: plotly.graph_objs._figure.Figure
-        Plotly figure geo object i.d. scatter_geo
-        
     deg: float, default 2.5
         Degrees for grid spacing
 
@@ -135,8 +132,8 @@ def scatter_geo_layout(figure, deg=2.5, colorscale="jet"):
         
     Returns
     -------
-    figure: plotly.graph_objs._figure.Figure
-        Better layout figure
+    figure: plotly.graph_objs.Layout
+        A layout object, ready for the update_layout method
     """
 
     grid_dict = dict(showgrid = True,
@@ -165,8 +162,10 @@ def scatter_geo_layout(figure, deg=2.5, colorscale="jet"):
                          xpad=0)
 
 
-    figure.update_layout(coloraxis={"colorbar": colorbar_dict, "colorscale": colorscale},
-                      margin={"l":0, "b":0, "t":50},
-                      geo=geo_dict)
+    coloraxis={"colorbar": colorbar_dict, "colorscale": colorscale}
+    margin={"l":0, "b":0, "t":50}
+
+
+    return go.Layout(coloraxis=coloraxis, margin=margin, geo=geo_dict)
 
 #######################################################################################################################
