@@ -7,6 +7,8 @@ import pandas as pd
 def rfft(signal, sampling_rate):
     
     """
+    Computes the power spectrum of a time series (signal) with real values.
+
     Parameters
     ----------
     signal: array-like
