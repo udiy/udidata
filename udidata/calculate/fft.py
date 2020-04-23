@@ -4,48 +4,27 @@ import pandas as pd
 
 #######################################################################################################################
 
-def fft(signal, sampling_rate, positive=False, spectrum=None):
+def rfft(signal, sampling_rate):
     
     """
     Parameters
     ----------
     signal: array-like
-        An array with discrete signal values.
+        An array with real signal values.
     
     sampling_rate: int
-        Number of samples per one cycle of a unit time.
-
-    positive: bool
-        If true, return only positive frequency values
-
-    spectrum: str
-        Type of spectral values to return. Options: "amp" - amplitude, "psd" - power spectral density (amplitude sqaured).
-        If None than complex numbers will be returned
-
+        Sampling rate or sampling frequency. Number of samples per a unit time.
+        
     Returns
     -------
-    S: pandas.Series
-        A pandas series whose values is the frequecny spectrum, and index is freqeuncy values
+    : pandas Series
+        A pandas series with complex numbers representing frequecny spectrum. 
+        Index is freqeuncy, in units of cycles per unit time
     """
-
-    # compute frequency spectrum using fft
-    S = np.fft.fft(signal)
     
-    # compute frequency range (frequency axis values)
-    n = signal.size
-    d = (1/sampling_rate)   # sampling spacing - inverse of sampling rate
-    freq = np.fft.fftfreq(n, d)
-
-    # cast S into a pandas Series with frequency values as index
-    S = pd.Series(S, index=pd.Index(freq, name="freq"))
-
-    if spectrum == "amp":
-        S = S.abs()
-    elif spectrum == "psd":
-        S = (S.abs() ** 2)
+    spectra = np.fft.rfft(signal)
+    freq = np.fft.rfftfreq(n=signal.size, d=(1/sampling_rate))
     
-    if positive:
-        # slice S to select only positive frequency values
-        return S.iloc[:int(n/2)]
+    return pd.Series(spectra, index=pd.Index(freq, name="freq"))
 
-    return S
+#######################################################################################################################
